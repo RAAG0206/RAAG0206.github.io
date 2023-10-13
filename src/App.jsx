@@ -9,7 +9,6 @@ import Webcam from 'react-webcam'
 
 function App() {
   const [count, setCount] = useState(0)
-  const [noseColor, setNoseColor] = useState(null)
   const webcamRef = useRef(null)
   const canvasRef = useRef(null)
   const detectorRef = useRef(null)
@@ -70,6 +69,9 @@ function App() {
   
   return (
     <>
+      <h1>React + Vite + TensorFlow.js</h1>
+      <p>Por favor active Experimental Web Platform Features, aquí: <a href="chrome://flags/#enable-experimental-web-platform-features">chrome://flags/#enable-experimental-web-platform-features</a></p>
+      <strong style={{marginBottom: "10px"}}>Copie y pegue el link en su buscador de Google Chrome</strong>
       <Webcam mirrored style={{
         //position: 'absolute',
         marginLeft: 'auto',
@@ -87,6 +89,7 @@ function App() {
       <canvas style={{
         //position: 'absolute',
         marginLeft: 'auto',
+        marginBottom: "10px",
         marginRight: 'auto',
         left: 0,
         right: 0,
@@ -96,7 +99,7 @@ function App() {
         height: 480
       }} ref={canvasRef}/>
 
-<button onClick={() => {
+<button style={{backgroundColor: "#0c151c"}} onClick={() => {
           navigator.bluetooth.requestDevice({
             filters: [{
               name: "JustTry"
