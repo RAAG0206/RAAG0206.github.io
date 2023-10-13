@@ -42,7 +42,13 @@ function App() {
           } else {
             ctx.fillStyle = `rgb(${color*125/4095}, ${color*100/4095}, ${color*255/4095})`
           }
-          if (keypoint.score > 0.3) ctx.fillRect((300*Math.abs(keypoint.x)/640), (150*keypoint.y/480), 5, 5);
+          console.log(canvasRef.current.width, canvasRef.current.height, webcamRef.current.video.videoWidth, webcamRef.current.video.videoHeight, keypoint.x, keypoint.y)
+          if (keypoint.score > 0.3) {
+            // Draw circles on the keypoints
+            ctx.beginPath();
+            ctx.arc((300*Math.abs(keypoint.x)/640), (150*keypoint.y/480), 2, 0, 2*Math.PI);
+            ctx.fill();
+          }//ctx.fillRect((300*Math.abs(keypoint.x)/640), (150*keypoint.y/480), 5, 5);
         })
       }
       requestAnimationFrame(getPoses)
