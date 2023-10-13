@@ -17,6 +17,35 @@ function App() {
   let color = 0;
   const colors = ["red", "blue", "green", "yellow", "orange", "purple", "pink", "brown", "black", "white"]
   
+  function drawSkeleton(keypoints, poseId) {
+    canvasRef.current.getContext("2d").lineWidth = 2;
+
+    poseDetection.util.getAdjacentPairs("MoveNet").forEach(([i, j]) => {
+      const kp1 = keypoints[i];
+      const kp2 = keypoints[j];
+
+      // If score is null, just show the keypoint.
+      const score1 = kp1.score != null ? kp1.score : 1;
+      const score2 = kp2.score != null ? kp2.score : 1;
+      const scoreThreshold = 0.3 || 0;
+
+      if (score1 >= scoreThreshold && score2 >= scoreThreshold) {
+        if ((kp1.name == "left_shoulder" || kp1.name == "right_shoulder") && (kp2.name == "left_elbow" || kp2.name == "right_elbow")) { 
+          // console.log(kp1.name, kp2.name)
+          canvasRef.current.getContext("2d").fillStyle = `rgb(${color*255/4095}, ${255-color*255/4095}, 0)`;
+          canvasRef.current.getContext("2d").strokeStyle = `rgb(${color*255/4095}, ${255-color*255/4095}, 0)`;
+        } else {
+          canvasRef.current.getContext("2d").fillStyle = "white";
+          canvasRef.current.getContext("2d").strokeStyle = "white";
+        }
+        canvasRef.current.getContext("2d").beginPath();
+        canvasRef.current.getContext("2d").moveTo((300*Math.abs(kp1.x)/640), (150*kp1.y/480));
+        canvasRef.current.getContext("2d").lineTo((300*Math.abs(kp2.x)/640), (150*kp2.y/480));
+        canvasRef.current.getContext("2d").stroke();
+      }
+    });
+  }
+
   function handleContraction(event) {
     const contraction = new TextDecoder("utf-8").decode(event.target.value);
     color = contraction;
@@ -34,18 +63,14 @@ function App() {
       const poses = await detectorRef.current.estimatePoses(webcamRef.current.video)
       ctx.drawImage(webcamRef.current.video, 0, 0, canvasRef.current.width, canvasRef.current.height)
       if (poses.length > 0) {
+        ctx.fillStyle = "black"
         poses[0].keypoints.forEach((keypoint) => {
-          if (keypoint.name == "nose") {
-            console.log(`rgb(${color*255/4095}, 0, 0)`)
-            ctx.fillStyle = `rgb(${color*255/4095}, 0, 0)`
-          } else {
-            ctx.fillStyle = `rgb(${color*125/4095}, ${color*100/4095}, ${color*255/4095})`
-          }
           if (keypoint.score > 0.3) {
             // Draw circles on the keypoints
             ctx.beginPath();
             ctx.arc((300*Math.abs(keypoint.x)/640), (150*keypoint.y/480), 2, 0, 2*Math.PI);
             ctx.fill();
+            drawSkeleton(poses[0].keypoints, poses[0].id)
           }//ctx.fillRect((300*Math.abs(keypoint.x)/640), (150*keypoint.y/480), 5, 5);
         })
       }
