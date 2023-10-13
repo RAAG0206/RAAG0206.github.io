@@ -42,7 +42,6 @@ function App() {
           } else {
             ctx.fillStyle = `rgb(${color*125/4095}, ${color*100/4095}, ${color*255/4095})`
           }
-          console.log(canvasRef.current.width, canvasRef.current.height, webcamRef.current.video.videoWidth, webcamRef.current.video.videoHeight, keypoint.x, keypoint.y)
           if (keypoint.score > 0.3) {
             // Draw circles on the keypoints
             ctx.beginPath();
