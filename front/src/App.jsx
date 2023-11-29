@@ -6,6 +6,113 @@ import * as poseDetection from '@tensorflow-models/pose-detection'
 import Webcam from 'react-webcam'
 import { BrowserRouter, Route, Routes, useNavigate } from 'react-router-dom';
 
+/*
+[
+    {
+        "y": 150.25054931640628,
+        "x": 330.35396575927734,
+        "score": 0.6607863903045654,
+        "name": "nose"
+    },
+    {
+        "y": 124.56676483154297,
+        "x": 351.2428283691406,
+        "score": 0.8471063375473022,
+        "name": "left_eye"
+    },
+    {
+        "y": 123.61557006835939,
+        "x": 304.60729598999023,
+        "score": 0.8702555894851685,
+        "name": "right_eye"
+    },
+    {
+        "y": 151.78714752197268,
+        "x": 371.62044525146484,
+        "score": 0.864836573600769,
+        "name": "left_ear"
+    },
+    {
+        "y": 152.0789527893066,
+        "x": 270.35282135009766,
+        "score": 0.724021315574646,
+        "name": "right_ear"
+    },
+    {
+        "y": 262.0664978027344,
+        "x": 414.5983123779297,
+        "score": 0.7761140465736389,
+        "name": "left_shoulder"
+    },
+    {
+        "y": 305.58746337890625,
+        "x": 224.6723175048828,
+        "score": 0.8686800599098206,
+        "name": "right_shoulder"
+    },
+    {
+        "y": 335.27000427246094,
+        "x": 564.5779037475586,
+        "score": 0.8009536862373352,
+        "name": "left_elbow"
+    },
+    {
+        "y": 471.97334289550776,
+        "x": 152.41262435913086,
+        "score": 0.3059219419956207,
+        "name": "right_elbow"
+    },
+    {
+        "y": 131.28780364990237,
+        "x": 507.0810317993164,
+        "score": 0.8383532762527466,
+        "name": "left_wrist"
+    },
+    {
+        "y": 473.4333038330078,
+        "x": 152.24822998046875,
+        "score": 0.05063867196440697,
+        "name": "right_wrist"
+    },
+    {
+        "y": 513.2359313964843,
+        "x": 413.1103515625,
+        "score": 0.433409720659256,
+        "name": "left_hip"
+    },
+    {
+        "y": 526.8021392822266,
+        "x": 267.24552154541016,
+        "score": 0.5118745565414429,
+        "name": "right_hip"
+    },
+    {
+        "y": 457.4954605102539,
+        "x": 473.7363052368164,
+        "score": 0.23225606977939606,
+        "name": "left_knee"
+    },
+    {
+        "y": 476.62540435791016,
+        "x": 167.54352569580078,
+        "score": 0.02866836078464985,
+        "name": "right_knee"
+    },
+    {
+        "y": 459.8150253295898,
+        "x": 476.16214752197266,
+        "score": 0.026787688955664635,
+        "name": "left_ankle"
+    },
+    {
+        "y": 565.1614379882811,
+        "x": 353.8031005859375,
+        "score": 0.00687823910266161,
+        "name": "right_ankle"
+    }
+]
+*/
+
 const HEAD_POINTS = ["nose", "left_eye", "right_eye", "left_ear", "right_ear"];
 const REAL_INDEXES = {
   nose: 0,
@@ -147,35 +254,29 @@ function Tracking() {
         increment.current = 2;
       }
       const poses = await detectorRef.current.estimatePoses(webcamRef.current.video)
-      imageRef.current.width = 640;
-      imageRef.current.height = 480;
       ctx.drawImage(imageRef.current, 0, 0, 640, 480)
       const imageData = ctx.getImageData(0, 0, canvasRef.current.width, canvasRef.current.height)
       invertColors(imageData.data)
       ctx.putImageData(imageData, 0, 0)
 
       if (!currentFramePose.current) {
-          setTimeout(async ()=>{
-            console.log("hola")
-            const image = new Image()
-            image.width = canvasRef.current.width
-            image.height = canvasRef.current.height
-            image.src = canvasRef.current.toDataURL()
-            currentFramePose.current = await detectorRef.current.estimatePoses(image)
-              
-            mirrorKeypoints(currentFramePose.current)
-          }, 200)
-      } else {
-        if (currentFramePose.current.length > 0) {
-          ctx.fillStyle = "black"
-          currentFramePose.current[0].keypoints.forEach((keypoint) => {
-            if (keypoint.score > 0.3) {
-              ctx.beginPath();
-              ctx.arc(keypoint.x, keypoint.y, 2, 0, 2*Math.PI);
-              ctx.fill();
-            }
-          }) 
-        }
+        const image = new Image()
+        image.src = canvasRef.current.toDataURL()
+        imageRef.current.width = 640
+        imageRef.current.height = 480
+        currentFramePose.current = await detectorRef.current.estimatePoses(imageRef.current)
+        console.log(currentFramePose.current)
+        //mirrorKeypoints(currentFramePose.current)
+      }
+      if (currentFramePose.current.length > 0) {
+        ctx.fillStyle = "black"
+        currentFramePose.current[0].keypoints.forEach((keypoint) => {
+          if (keypoint.score > 0.3) {
+            ctx.beginPath();
+            ctx.arc(keypoint.x, keypoint.y, 2, 0, 2*Math.PI);
+            ctx.fill();
+          }
+        }) 
       }
       if (poses.length > 0) {
         ctx.fillStyle = "black"
